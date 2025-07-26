@@ -3,7 +3,7 @@
 #SBATCH --output=rde%j.out
 #SBATCH --error=rde%j.err
 #SBATCH --time=12:00:00
-#SBATCH --mem=16G
+#SBATCH --mem=24G
 #SBATCH --partition=gpu_test
 #SBATCH --gres=gpu:1
 #SBATCH --mail-type=END,FAIL
@@ -26,11 +26,23 @@ cd /n/netscratch/shakhnovich_lab/Lab/amaechler/RDE-PPI
 # Training
 python train_rde_network_skempi_grouped.py configs/train/rde_ddg_skempi_grouped.yml --num_workers 1
 
-# Testing 
-#python test_rde_network_skempi_grouped.py configs/train/rde_ddg_skempi_grouped.yml --checkpoint <path_to_model>
-
 #training only regression
 #python -m rde.linear.entropy
 
 #python -m rde.linear.calibrate_grouped RDE_skempi_entropy.pkl --grouped_csv_path ./data/complex_sequences_grouped_99.csv --num_folds 10
 
+#python extract_rde_linear_per_residue.py RDE_skempi_entropy.pkl --grouped_csv_path ./data/complex_sequences_grouped_99.csv
+
+# python -m rde.linear.extract_embeddings \
+#   --ckpt ./trained_models/RDE.pt \
+#   --skempi_dir ./data/SKEMPI_v2/PDBs \
+#   --skempi_cache_path ./data/SKEMPI_v2_cache.pkl \
+#   --skempi_csv_path ./data/SKEMPI_v2/skempi_v2.csv \
+#   --output_dir complex_embeddings \
+#   --device cuda
+
+# python extract_ddg_network_embeddings.py \
+#   --ckpt logs_skempi_grouped/rde_ddg_skempi_grouped_new_60/checkpoints/30000.pt \
+#   --config configs/train/rde_ddg_skempi_grouped.yml \
+#   --output_dir ddg_network_embeddings \
+#   --device cuda

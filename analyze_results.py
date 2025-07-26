@@ -85,5 +85,5 @@ def analyze_results(csv_path):
 
 if __name__ == "__main__":
     # Analyze the cross-validation results file
-    csv_path = "logs_skempi_grouped/rde_ddg_skempi_grouped_100/checkpoints/results_30000.csv"
+    csv_path = "logs_skempi_grouped/rde_ddg_skempi_grouped_new_100/checkpoints/results_30000.csv"
     analyze_results(csv_path) 

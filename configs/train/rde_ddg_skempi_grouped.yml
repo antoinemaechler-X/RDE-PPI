@@ -9,7 +9,7 @@ data:
   csv_path: ./data/SKEMPI_v2/skempi_v2.csv
   pdb_dir: ./data/SKEMPI_v2/PDBs
   cache_dir: ./data/SKEMPI_v2_cache_grouped
-  grouped_csv_path: ./data/complex_sequences_grouped_40.csv
+  grouped_csv_path: ./data/complex_sequences_grouped_60.csv
   transform:
   - type: select_atom
     resolution: backbone+CB

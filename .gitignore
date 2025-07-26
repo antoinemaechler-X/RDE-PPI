@@ -131,3 +131,8 @@ dmypy.json
 /*.csv
 /*.pkl
 /RDE_linear_skempi*
+/complex_embeddings*
+ddg_network_embeddings
+ddg_network_embeddings_matching
+/logs_skempi_grouped
+old_numpy
