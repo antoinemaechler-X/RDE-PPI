@@ -13,9 +13,9 @@ def create_cluster_analysis_plot():
     
     # Data
     thresholds = [40, 60, 80, 95, 99, 100]  # Sequence identity thresholds (%)
-    num_clusters = [86, 109, 124, 155, 191, 335]  # Number of complex clusters (last value to be calculated)
-    pcc_values = [0.456, 0.508, 0.433, 0.548, 0.539, 0.655]  # Pearson correlation coefficients
-    spearman_values = [0.386, 0.407, 0.375, 0.418, 0.434, 0.513]  # Spearman correlation coefficients
+    num_clusters = [110, 136, 180, 220, 253, 335]  # Number of complex clusters (last value to be calculated)
+    pcc_values = [0.3953, 0.3693, 0.3653, 0.3674, 0.3878, 0.4152]  # Pearson correlation coefficients
+    spearman_values = [0.3657, 0.3597, 0.3570, 0.3543, 0.3665, 0.3424]  # Spearman correlation coefficients
     
     # Debug: Print all data
     print("DEBUG: All data points:")

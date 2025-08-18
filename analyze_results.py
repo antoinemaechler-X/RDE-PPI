@@ -24,6 +24,21 @@ def analyze_results(csv_path):
     spearman_corr = df[true_col].corr(df[pred_col], method='spearman')
     rmse = np.sqrt(np.mean((df[true_col] - df[pred_col])**2))
     mae = np.mean(np.abs(df[true_col] - df[pred_col]))
+    
+    # Compute AUROC assuming positive class is ddG < 0 (stabilizing)
+    # Uses -predicted ddG as score so higher scores correspond to positive class
+    auroc = np.nan
+    try:
+        from sklearn.metrics import roc_auc_score
+        y_true_binary = (df[true_col] < 0).astype(int)
+        # AUROC requires both classes to be present
+        if y_true_binary.nunique() == 2:
+            y_score = -df[pred_col]
+            auroc = float(roc_auc_score(y_true_binary, y_score))
+        else:
+            print("Warning: AUROC not computed because only one class is present in the true labels (based on ddG < 0 threshold).")
+    except Exception as e:
+        print(f"Warning: Could not compute AUROC ({e}).")
 
     # Print overall metrics
     print(f"\nAnalysis of {csv_path}")
@@ -31,8 +46,21 @@ def analyze_results(csv_path):
     print(f"Number of predictions: {len(df)}")
     print(f"Overall Pearson correlation: {pearson_corr:.4f}")
     print(f"Overall Spearman correlation: {spearman_corr:.4f}")
+    print(f"Overall AUROC: {auroc:.4f}")
     print(f"Overall RMSE: {rmse:.4f}")
     print(f"Overall MAE: {mae:.4f}")
+
+    # Save overall metrics to CSV next to the input CSV
+    metrics_path = csv_path.replace('.csv', '_metrics.csv')
+    metrics_df = pd.DataFrame([{
+        'pearson': pearson_corr,
+        'spearman': spearman_corr,
+        'auroc': auroc,
+        'rmse': rmse,
+        'mae': mae
+    }])
+    metrics_df.to_csv(metrics_path, index=False)
+    print(f"\nMetrics CSV saved to: {metrics_path}")
 
     # If 'method' column exists, print per-method metrics
     if 'method' in df.columns:
@@ -85,5 +113,5 @@ def analyze_results(csv_path):
 
 if __name__ == "__main__":
     # Analyze the cross-validation results file
-    csv_path = "logs_skempi_grouped/rde_ddg_skempi_grouped_new_100/checkpoints/results_30000.csv"
+    csv_path = "RDE_linear_skempi_wildtype_only_60/results.csv"
     analyze_results(csv_path) 

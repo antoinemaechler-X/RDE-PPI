@@ -26,12 +26,19 @@ class FocusedRandomPatch(object):
         nbh_seed_idx = dist_from_seed.argsort()[:self.seed_nbh_size]    # (Nb, )
 
         core_idx = nbh_seed_idx[focus_flag[nbh_seed_idx]]  # (Ac, ), the core-set must be a subset of the focus-set
-        dist_from_core = torch.cdist(pos_CB, pos_CB[core_idx]).min(dim=1)[0]    # (L, )
-        patch_idx = dist_from_core.argsort()[:self.patch_size]    # (P, )
-        patch_idx = patch_idx.sort()[0]
+        
+        # Handle case where core_idx is empty
+        if core_idx.size(0) == 0:
+            # If no core residues, just take the first patch_size residues
+            patch_idx = torch.arange(min(self.patch_size, pos_CB.size(0)))
+        else:
+            dist_from_core = torch.cdist(pos_CB, pos_CB[core_idx]).min(dim=1)[0]    # (L, )
+            patch_idx = dist_from_core.argsort()[:self.patch_size]    # (P, )
+            patch_idx = patch_idx.sort()[0]
 
         core_flag = torch.zeros([data['aa'].size(0), ], dtype=torch.bool)
-        core_flag[core_idx] = True
+        if core_idx.size(0) > 0:
+            core_flag[core_idx] = True
         data['core_flag'] = core_flag
 
         data_patch = _index_select_data(data, patch_idx)
@@ -81,9 +88,15 @@ class SelectedRegionWithPaddingPatch(object):
 
         pos_CB = _get_CB_positions(data['pos_atoms'], data['mask_atoms'])   # (L, 3)
         pos_sel = pos_CB[select_flag]   # (S, 3)
-        dist_from_sel = torch.cdist(pos_CB, pos_sel)    # (L, S)
-        nbh_sel_idx = torch.argsort(dist_from_sel, dim=0)[:self.each_residue_nbh_size, :]  # (nbh, S)
-        patch_idx = nbh_sel_idx.view(-1).unique()       # (patchsize,)
+        
+        # Handle case where no residues are selected
+        if pos_sel.size(0) == 0:
+            # If no residues are selected, just take the first patch_size_limit residues
+            patch_idx = torch.arange(min(self.patch_size_limit, pos_CB.size(0)))
+        else:
+            dist_from_sel = torch.cdist(pos_CB, pos_sel)    # (L, S)
+            nbh_sel_idx = torch.argsort(dist_from_sel, dim=0)[:self.each_residue_nbh_size, :]  # (nbh, S)
+            patch_idx = nbh_sel_idx.view(-1).unique()       # (patchsize,)
 
         data_patch = _index_select_data(data, patch_idx)
         return data_patch
@@ -102,8 +115,14 @@ class SelectedRegionFixedSizePatch(object):
 
         pos_CB = _get_CB_positions(data['pos_atoms'], data['mask_atoms'])   # (L, 3)
         pos_sel = pos_CB[select_flag]   # (S, 3)
-        dist_from_sel = torch.cdist(pos_CB, pos_sel).min(dim=1)[0]    # (L, )
-        patch_idx = torch.argsort(dist_from_sel)[:self.patch_size]
+        
+        # Handle case where no residues are selected (e.g., wildtype structure)
+        if pos_sel.size(0) == 0:
+            # If no residues are selected, just take the first patch_size residues
+            patch_idx = torch.arange(min(self.patch_size, pos_CB.size(0)))
+        else:
+            dist_from_sel = torch.cdist(pos_CB, pos_sel).min(dim=1)[0]    # (L, )
+            patch_idx = torch.argsort(dist_from_sel)[:self.patch_size]
 
         data_patch = _index_select_data(data, patch_idx)
         return data_patch

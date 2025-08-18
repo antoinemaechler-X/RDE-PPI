@@ -136,3 +136,5 @@ ddg_network_embeddings
 ddg_network_embeddings_matching
 /logs_skempi_grouped
 old_numpy
+ddg_network_embeddings_wildtype_only
+ddg_network_embeddings_wildtype_only/fold_0
